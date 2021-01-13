@@ -1,0 +1,105 @@
+﻿@inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
+@inject IModalService Modal
+
+@page "/"
+<div class="container-fluid h-100 d-flex flex-column">
+
+@if (@gameInProgress)
+{
+    <div class="row">
+        <div class="col">
+            <TeamDisplay Team=@team1 OpenScoreModal="@OpenModal"/>
+        </div>
+        <div class="col">
+            <TeamDisplay Team=@team2 OpenScoreModal="@OpenModal"/>
+        </div>
+    </div>
+
+    <div class="row align-bottom">
+        <button class="btn btn-primary mx-auto" @onclick="EndGame">End Game</button>
+    </div>
+}
+else
+{
+    <h5>Enter team names:</h5>
+    <p>Team 1: <input type="text" placeholder="Team 1" @bind="team1.Name"/></p>
+    <p>Team 2: <input type="text" placeholder="Team 2" @bind="team2.Name"/></p>
+    <button class="btn btn-primary" @onclick="StartGame">Start Game</button>
+}
+
+</div> @*End Bootstrap container*@
+
+
+@code {
+    private bool gameInProgress { get; set; } = false;
+    private Team team1 { get; set; } = new Team();
+    private Team team2 { get; set; } = new Team();
+
+    protected override Task OnInitializedAsync()
+    {
+        gameInProgress = localStorage.GetItem<bool>("gameInProgress");
+        if (gameInProgress)
+        {
+            team1 = localStorage.GetItem<Team>("team1");
+            team2 = localStorage.GetItem<Team>("team2");
+        }
+        else
+        {
+            team1 = new Team();
+            team2 = new Team();
+        }
+        return base.OnInitializedAsync();
+    }
+
+    private void StartGame()
+    {
+        if (string.IsNullOrEmpty(team1.Name))
+        {
+            team1 = new Team();
+            team1.Name = "Team 1";
+        }
+        if (string.IsNullOrEmpty(team2.Name))
+        {
+            team2 = new Team();
+            team2.Name = "Team 2";
+        }
+        gameInProgress = true;
+        localStorage.SetItem<bool>("gameInProgress", gameInProgress);
+        localStorage.SetItem<Team>("team1", team1);
+        localStorage.SetItem<Team>("team2", team2);
+    }
+
+    public async Task OpenModal(Team team)
+    {
+        var options = new ModalOptions()
+        {
+            DisableBackgroundCancel = true,
+            HideCloseButton = true,
+            FocusFirstElement = true,
+            HideHeader = true
+        };
+        var p = new ModalParameters();
+        p.Add("teamName", team.Name);
+        var scoreModal = Modal.Show<Score>("Score", p, options);
+
+        var result = await scoreModal.Result;
+
+        if(!result.Cancelled)
+        {
+            var score = (RoundScore)result.Data;
+            var roundScore = team.AddRoundScore(score);
+            Console.WriteLine($"Team {team.Name} round Score: {roundScore}");
+            Console.WriteLine($"Team {team.Name} total score: {team.TotalScore}");
+        }
+    }
+
+    private void EndGame()
+    {
+        gameInProgress = false;
+        localStorage.SetItem<bool>("gameInProgress", gameInProgress);
+        team1 = null;
+        localStorage.SetItem<Team>("team1", team1);
+        team2 = null;
+        localStorage.SetItem<Team>("team2", team2);
+    }
+}

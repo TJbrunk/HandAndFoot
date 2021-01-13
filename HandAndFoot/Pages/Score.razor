@@ -1,0 +1,45 @@
+﻿<h3>Team: @TeamName</h3>
+<div class="container simple-form">
+    <div class="form-group row">
+        <label for="cleanBooks" class="col-6 col-form-label">Clean Books</label>
+        <div class="col-6">
+            <input id="cleanBooks" type="number" class="form-control" @bind="RoundScore.CleanBooks"/>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="dirtyBooks" class="col-6 col-form-label">Dirty Books</label>
+        <div class="col-6">
+            <input id="dirtyBooks" type="number" class="form-control" @bind="RoundScore.DirtyBooks"/>
+        </div>
+    </div>
+
+    <div class="form-check">
+        <input id="wentOut" @bind="RoundScore.WentOut" type="checkbox" class="form-check-input"/>
+        <label for="wentOut">Went Out?</label>
+    </div>
+
+    <div class="form-group row justify-content-center">
+        <div class="col-4">
+            <button type="submit" class="btn btn-success" @onclick="SaveScore">Save</button>
+        </div>
+        <div class="col-4">
+            <button class="btn btn-danger" @onclick="Cancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [CascadingParameter] BlazoredModalInstance modalInstance { get; set; }
+    [Parameter] public string TeamName{ get; set; }
+    public RoundScore RoundScore { get; set; } = new RoundScore();
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    void SaveScore() => modalInstance.CloseAsync(ModalResult.Ok<RoundScore>(this.RoundScore));
+
+    void Cancel() => modalInstance.CancelAsync();
+}
