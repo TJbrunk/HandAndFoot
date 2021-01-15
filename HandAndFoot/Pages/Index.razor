@@ -15,8 +15,8 @@
         </div>
     </div>
 
-    <div class="row align-bottom">
-        <button class="btn btn-primary mx-auto" @onclick="EndGame">End Game</button>
+    <div class="h-100 d-flex align-items-end">
+        <button class="btn btn-primary mx-auto mb-5" @onclick="EndGame">End Game</button>
     </div>
 }
 else
@@ -71,11 +71,8 @@ else
         localStorage.SetItem<Team>("team2", team2);
     }
 
-    public void AddCardDrawBonus(Team team)
-    {
-        team.AddCardDrawBonus();
+    public void AddCardDrawBonus(Team team) => team.AddCardDrawBonus();
 
-    }
     public async Task OpenModal(Team team)
     {
         var options = new ModalOptions()

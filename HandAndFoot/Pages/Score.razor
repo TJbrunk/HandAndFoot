@@ -1,4 +1,6 @@
-﻿<h3>Team: @TeamName</h3>
+﻿@inject IModalService Modal
+
+<h3>Team: @TeamName</h3>
 <div class="container simple-form">
     <div class="form-group row">
         <label for="cleanBooks" class="col-6 col-form-label">Clean Books</label>
@@ -50,19 +52,36 @@
 
     [CascadingParameter]
     BlazoredModalInstance modalInstance { get; set; }
+
     [Parameter]
     public string TeamName{ get; set; }
+
     public RoundScore RoundScore { get; set; } = new RoundScore();
 
     private bool hideCardsAgainst { get; set; } = true;
     private void ToggleDisplay() => this.hideCardsAgainst = !this.hideCardsAgainst;
 
-    protected override void OnInitialized()
+    ModalOptions mOpts = new ModalOptions()
     {
-        base.OnInitialized();
+        DisableBackgroundCancel = false,
+        HideCloseButton = false,
+    };
+
+    void SaveScore()
+    {
+        if(this.RoundScore.WentOut && (this.RoundScore.CleanBooks < 3 || this.RoundScore.DirtyBooks < 4))
+        {
+            Console.WriteLine("Books are not consistent with 'Going out'");
+            var p = new ModalParameters();
+            p.Add("Message", "You must have 3 clean books and 4 dirty books to 'go out'");
+            Modal.Show<PopupModal>("Error", p, this.mOpts);
+        }
+        else
+        { 
+            modalInstance.CloseAsync(ModalResult.Ok<RoundScore>(this.RoundScore));
+        }
     }
 
-    void SaveScore() => modalInstance.CloseAsync(ModalResult.Ok<RoundScore>(this.RoundScore));
 
     void Cancel() => modalInstance.CancelAsync();
 }
