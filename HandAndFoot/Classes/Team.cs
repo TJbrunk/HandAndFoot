@@ -14,7 +14,7 @@ namespace HandAndFoot.Classes
         public string Name { get; set; } = string.Empty;
         public string StorageId { get; set; }
         public List<RoundScore> RoundScores { get; set; } = new List<RoundScore>(); // List of 'scores' for each round
-        public uint CardDrawBonusCount { get; set; }
+        public int CardDrawBonusCount { get; set; }
         public int TotalScore
         {
             get
@@ -32,9 +32,17 @@ namespace HandAndFoot.Classes
 
         public int AddRoundScore(RoundScore score)
         {
+            score.CardDrawBonus = this.CardDrawBonusCount;
             this.RoundScores.Add(score);
             var s = score.CalculateTotal();
+            this.CardDrawBonusCount = 0;
             return s;
+        }
+
+        public void AddCardDrawBonus()
+        {
+            Console.WriteLine("Adding card draw bonus");
+            this.CardDrawBonusCount++;
         }
 
         public override string ToString() =>

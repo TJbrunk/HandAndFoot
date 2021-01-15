@@ -1,8 +1,7 @@
 ﻿<div class="container-fluid bg-light">
     <div class="row">
         <div class="col">
-            <button class="col btn btn-sm btn-primary" @onclick="OpenScoreClick"> Add Score </button>
-            <div class="row">
+            <div class="row font-weight-bold">
                 <p class="col">@Team.Name</p>
                 <p class="col float-right">@Team.TotalScore</p>
             </div>
@@ -13,6 +12,11 @@
                     <div class="col-6">@Team.RoundScores[i].CalculateTotal()</div>
                 </div>
             }
+
+            <div class="row justify-content-around">
+                <button class="col-lg-4 col-sm-8 btn btn-sm btn-primary" @onclick="OpenScoreClick">Score</button>
+                <button class="col-lg-4 col-sm-8 btn btn-sm btn-primary" @onclick="DrawBonusClick">Draw Bonus</button>
+            </div>
         </div>
     </div>
 </div>
@@ -24,8 +28,16 @@
     [Parameter]
     public EventCallback<Team> OpenScoreModal { get; set; }
 
+    [Parameter]
+    public EventCallback<Team> CardDrawBonus { get; set; }
+
     private void OpenScoreClick()
     {
         this.OpenScoreModal.InvokeAsync(this.Team);
+    }
+
+    private void DrawBonusClick()
+    {
+        this.CardDrawBonus.InvokeAsync(this.Team);
     }
 }

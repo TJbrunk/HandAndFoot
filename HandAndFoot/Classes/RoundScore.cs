@@ -11,6 +11,7 @@ namespace HandAndFoot.Classes
         public int CleanBooks { get; set; }
         public int DirtyBooks { get; set; }
         public int CardsTotalFor { get; set; }
+        public int CardDrawBonus { get; set; }
 
         // Negative Points:
         public int RedThrees { get; set; }
@@ -23,6 +24,8 @@ namespace HandAndFoot.Classes
             var total = this.WentOut ? PointValues.GoOutBonus : 0;
             total += this.CleanBooks * PointValues.CleanBooks;
             total += this.DirtyBooks * PointValues.DirtyBooks;
+            //Console.WriteLine($"Card draw bonus of: {this.CardDrawBonus}");
+            total += this.CardDrawBonus * PointValues.CardDrawBonus;
             total += CardsTotalFor;
 
             total += this.RedThrees * PointValues.RedThrees;

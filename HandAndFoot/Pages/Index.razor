@@ -8,10 +8,10 @@
 {
     <div class="row">
         <div class="col">
-            <TeamDisplay Team=@team1 OpenScoreModal="@OpenModal"/>
+            <TeamDisplay Team=@team1 OpenScoreModal="@OpenModal" CardDrawBonus="@AddCardDrawBonus"/>
         </div>
         <div class="col">
-            <TeamDisplay Team=@team2 OpenScoreModal="@OpenModal"/>
+            <TeamDisplay Team=@team2 OpenScoreModal="@OpenModal" CardDrawBonus="@AddCardDrawBonus"/>
         </div>
     </div>
 
@@ -46,7 +46,9 @@ else
         else
         {
             team1 = new Team();
+            team1.StorageId = "team1";
             team2 = new Team();
+            team2.StorageId = "team2";
         }
         return base.OnInitializedAsync();
     }
@@ -69,6 +71,11 @@ else
         localStorage.SetItem<Team>("team2", team2);
     }
 
+    public void AddCardDrawBonus(Team team)
+    {
+        team.AddCardDrawBonus();
+
+    }
     public async Task OpenModal(Team team)
     {
         var options = new ModalOptions()
@@ -78,6 +85,7 @@ else
             FocusFirstElement = true,
             HideHeader = true
         };
+        Console.WriteLine($"Opening score modal for {team.Name}/{team.StorageId}");
         var p = new ModalParameters();
         p.Add("teamName", team.Name);
         var scoreModal = Modal.Show<Score>("Score", p, options);
@@ -88,6 +96,7 @@ else
         {
             var score = (RoundScore)result.Data;
             var roundScore = team.AddRoundScore(score);
+            localStorage.SetItem<Team>(team.StorageId, team);
             Console.WriteLine($"Team {team.Name} round Score: {roundScore}");
             Console.WriteLine($"Team {team.Name} total score: {team.TotalScore}");
         }
