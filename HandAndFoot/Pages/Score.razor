@@ -25,19 +25,6 @@
         <label for="wentOut">Went Out?</label>
     </div>
 
-    <div class="form-group row" >
-        <label for="cardsFor" class="col-6 col-form-label">Cards PLUS</label>
-        <div class="col-6">
-            <input id="cardsFor" type="number" class="form-control" @bind="RoundScore.CardsTotalFor"/>
-        </div>
-    </div>
-
-    <div class="form-group row" hidden="@(!hideCardsAgainst)" >
-        <label for="cardsAgainst" class="col-6 col-form-label">Cards MINUS</label>
-        <div class="col-6">
-            <input id="cardsAgainst" type="number" class="form-control" @bind="RoundScore.CardsTotalAgainst"/>
-        </div>
-    </div>
     <div class="form-group row justify-content-center">
         <div class="col-4">
             <button type="submit" class="btn btn-success" @onclick="SaveScore">Save</button>

@@ -1,0 +1,52 @@
+﻿@inject IModalService Modal
+
+<h3>Team: @TeamName</h3>
+<div class="container simple-form">
+    
+    <div class="form-group row" >
+        <label for="cardsFor" class="col-6 col-form-label">Cards PLUS</label>
+        <div class="col-6">
+            <input id="cardsFor" type="number" class="form-control" @bind="RoundScore.CardsTotalFor"/>
+        </div>
+    </div>
+
+    <label for="cardsAgainst" class="col-6 col-form-label">Cards MINUS</label>
+    <div class="col-6">
+        <input id="cardsAgainst" type="number" class="form-control" @bind="RoundScore.CardsTotalAgainst"/>
+    </div>
+
+    <div class="form-group row justify-content-center">
+        <div class="col-4">
+            <button type="submit" class="btn btn-success" @onclick="SaveScore">Save</button>
+        </div>
+        <div class="col-4">
+            <button class="btn btn-danger" @onclick="Cancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [CascadingParameter]
+    BlazoredModalInstance modalInstance { get; set; }
+
+    [Parameter]
+    public string TeamName{ get; set; }
+
+    public RoundScore RoundScore { get; set; } = new RoundScore();
+
+    private bool hideCardsAgainst { get; set; } = true;
+
+    ModalOptions mOpts = new ModalOptions()
+    {
+        DisableBackgroundCancel = false,
+        HideCloseButton = false,
+    };
+
+    void SaveScore()
+    {
+        modalInstance.CloseAsync(ModalResult.Ok<RoundScore>(this.RoundScore));
+    }
+
+    void Cancel() => modalInstance.CancelAsync();
+}

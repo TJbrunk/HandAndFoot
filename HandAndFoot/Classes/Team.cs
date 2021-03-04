@@ -13,7 +13,7 @@ namespace HandAndFoot.Classes
     {
         public string Name { get; set; } = string.Empty;
         public string StorageId { get; set; }
-        public List<RoundScore> RoundScores { get; set; } = new List<RoundScore>(); // List of 'scores' for each round
+        public List<RoundScore> RoundScores { get; set; } = new List<RoundScore>();// List of 'scores' for each round
         public int CardDrawBonusCount { get; set; }
         public int TotalScore
         {
@@ -28,21 +28,54 @@ namespace HandAndFoot.Classes
             }
         }
 
-        public Team() {}
-
-        public int AddRoundScore(RoundScore score)
+        public Team() 
         {
-            score.CardDrawBonus = this.CardDrawBonusCount;
-            this.RoundScores.Add(score);
-            var s = score.CalculateTotal();
-            this.CardDrawBonusCount = 0;
+        }
+
+        public int AddRoundBookScore(int round, RoundScore score)
+        {
+            //round = round > 0 ? round - 1 : 0;
+            if(round == this.RoundScores.Count)
+            {
+                this.RoundScores.Add(new RoundScore());
+            }
+            Console.WriteLine($"Adding Books score for round {round}");
+            Console.WriteLine($"Total ROunds played: {this.RoundScores.Count}");
+            this.RoundScores[round].BlackThrees = score.BlackThrees;
+            this.RoundScores[round].RedThrees = score.RedThrees;
+            this.RoundScores[round].CleanBooks = score.CleanBooks;
+            this.RoundScores[round].DirtyBooks = score.DirtyBooks;
+            this.RoundScores[round].WentOut = score.WentOut;
+            return this.RoundScores[round].CalculateTotal();
+        }
+
+        public int AddRoundCardScore(int round, RoundScore score)
+        {
+            if(round == this.RoundScores.Count)
+            {
+                Console.WriteLine("Adding new empty round to score list");
+                this.RoundScores.Add(new RoundScore());
+            }
+
+            Console.WriteLine($"Adding card score for round {round}");
+            this.RoundScores[round].CardsTotalAgainst = score.CardsTotalAgainst;
+            this.RoundScores[round].CardsTotalFor = score.CardsTotalFor;
+            var s = this.RoundScores[round].CalculateTotal();
             return s;
         }
 
-        public void AddCardDrawBonus()
+        public int AddCardDrawBonus(int round, int count)
         {
-            Console.WriteLine("Adding card draw bonus");
-            this.CardDrawBonusCount++;
+            //round = round > 0 ? round - 1 : 0;
+
+            if(round == this.RoundScores.Count)
+            {
+                this.RoundScores.Add(new RoundScore());
+            }
+
+            Console.WriteLine($"Adding {count} card draw bonus for round {round}");
+            this.RoundScores[round].CardDrawBonus = count;
+            return this.RoundScores[round].CalculateTotal();
         }
 
         public override string ToString() =>
@@ -63,7 +96,7 @@ namespace HandAndFoot.Classes
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            if(value is string)
+            if (value is string)
             {
                 string[] s = ((string)value).Split(',');
                 return new Team();

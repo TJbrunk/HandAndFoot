@@ -1,4 +1,7 @@
-﻿<div class="container-fluid bg-light"
+﻿@inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
+@inject IModalService Modal
+
+<div class="container-fluid bg-light"
      style="min-height: 400px">
     <div class="row">
         <div class="col">
@@ -6,17 +9,23 @@
                 <p class="col">@Team.Name</p>
                 <p class="col float-right">@Team.TotalScore</p>
             </div>
-            @for (int i = 0; i < Team.RoundScores.Count(); i++)
+            @for(int i = 0; i < this.Team.RoundScores.Count; i++)
             {
-                <div class="row">
-                    <div class="col-6">@(i+1):</div>
-                    <div class="col-6">@Team.RoundScores[i].CalculateTotal()</div>
+                var roundNumber = i;
+                <div class="row mb-2">
+                    <button class="col-2 btn-sm btn-success mx-1" @onclick="() => DrawBonusClick(roundNumber)">Draw Bonus</button>
+                    <div class="col-2">@(i+1):</div>
+                    <div class="col-2 mx-2">@Team.RoundScores[i].CalculateTotal()</div>
+                    <button class="col-2 btn-sm btn-info mx-2" @onclick="() => OpenScoreBooksModal(roundNumber)">Books</button>
+                    <button class="col-2 btn-sm btn-info" @onclick="() => OpenScoreCardsModal(roundNumber)">Cards</button>
                 </div>
             }
-
-            <div class="row justify-content-">
-                <button class="col-lg-4 col-sm-8 btn btn-sm btn-primary mx-3 my-1" @onclick="OpenScoreClick">Score</button>
-                <button class="col-lg-4 col-sm-8 btn btn-sm btn-primary mx-3 my-1" @onclick="DrawBonusClick">Draw Bonus</button>
+            <div class="row mb-2">
+                <button class="col-2 btn-sm btn-success mx-1" @onclick="() => DrawBonusClick(Team.RoundScores.Count)">Draw Bonus</button>
+                <div class="col-2">@(Team.RoundScores.Count + 1):</div>
+                <div class="col-2 mx-2">0</div>
+                <button class="col-2 btn-sm btn-info mx-2" @onclick="() => OpenScoreBooksModal(Team.RoundScores.Count)">Books</button>
+                <button class="col-2 btn-sm btn-info" @onclick="() => OpenScoreCardsModal(Team.RoundScores.Count)">Cards</button>
             </div>
         </div>
     </div>
@@ -26,19 +35,63 @@
     [Parameter]
     public Team Team { get; set; }
 
-    [Parameter]
-    public EventCallback<Team> OpenScoreModal { get; set; }
-
-    [Parameter]
-    public EventCallback<Team> CardDrawBonus { get; set; }
-
-    private void OpenScoreClick()
+    private async Task OpenScoreBooksModal(int round)
     {
-        this.OpenScoreModal.InvokeAsync(this.Team);
+        var options = new ModalOptions()
+        {
+            DisableBackgroundCancel = true,
+            HideCloseButton = true,
+            FocusFirstElement = true,
+            HideHeader = true
+        };
+        Console.WriteLine($"Opening books score modal for {Team.Name}/{Team.StorageId} for round {round}");
+        var p = new ModalParameters();
+        p.Add("TeamName", Team.Name);
+        var scoreModal = Modal.Show<Score>("Score", p, options);
+
+        var result = await scoreModal.Result;
+
+        if(!result.Cancelled)
+        {
+            var score = (RoundScore)result.Data;
+            var roundScore = Team.AddRoundBookScore(round, score);
+            localStorage.SetItem<Team>(Team.StorageId, Team);
+            //Console.WriteLine($"Team {Team.Name} round Score: {roundScore}");
+            //Console.WriteLine($"Team {Team.Name} total score: {Team.TotalScore}");
+            StateHasChanged();
+        }
+
     }
 
-    private void DrawBonusClick()
+    private async Task OpenScoreCardsModal(int round)
     {
-        this.CardDrawBonus.InvokeAsync(this.Team);
+        var options = new ModalOptions()
+        {
+            DisableBackgroundCancel = true,
+            HideCloseButton = true,
+            FocusFirstElement = true,
+            HideHeader = true
+        };
+        Console.WriteLine($"Opening card score modal for {this.Team.Name}/{this.Team.StorageId} for round {round}");
+        var p = new ModalParameters();
+        p.Add("teamName", this.Team.Name);
+        var scoreModal = Modal.Show<ScoreCards>("Card Score", p, options);
+
+        var result = await scoreModal.Result;
+
+        if(!result.Cancelled)
+        {
+            var score = (RoundScore)result.Data;
+            var roundScore = this.Team.AddRoundCardScore(round, score);
+            localStorage.SetItem<Team>(Team.StorageId, Team);
+            //Console.WriteLine($"Team {Team.Name} round Score: {roundScore}");
+            //Console.WriteLine($"Team {Team.Name} total score: {Team.TotalScore}");
+            StateHasChanged();
+        }
+    }
+
+    private void DrawBonusClick(int round)
+    {
+        this.Team.AddCardDrawBonus(round, 1);
     }
 }
