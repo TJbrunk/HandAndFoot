@@ -6,7 +6,7 @@
     <div class="form-group row" >
         <label for="cardsFor" class="col-6 col-form-label">Cards PLUS</label>
         <div class="col-6">
-            <input id="cardsFor" type="number" class="form-control" @bind="RoundScore.CardsTotalFor"/>
+            <input id="cardsFor" type="number" class="form-control" @bind="RoundScore.CardsTotalFor" />
         </div>
     </div>
 
@@ -33,7 +33,8 @@
     [Parameter]
     public string TeamName{ get; set; }
 
-    public RoundScore RoundScore { get; set; } = new RoundScore();
+    [Parameter]
+    public RoundScore RoundScore { get; set; }
 
     private bool hideCardsAgainst { get; set; } = true;
 

@@ -12,21 +12,30 @@
             @for(int i = 0; i < this.Team.RoundScores.Count; i++)
             {
                 var roundNumber = i;
-                <div class="row mb-2">
-                    <button class="col-2 btn-sm btn-success mx-1" @onclick="() => DrawBonusClick(roundNumber)">Draw Bonus</button>
+                <div class="row mb-0">
                     <div class="col-2">@(i+1):</div>
-                    <div class="col-2 mx-2">@Team.RoundScores[i].CalculateTotal()</div>
-                    <button class="col-2 btn-sm btn-info mx-2" @onclick="() => OpenScoreBooksModal(roundNumber)">Books</button>
-                    <button class="col-2 btn-sm btn-info" @onclick="() => OpenScoreCardsModal(roundNumber)">Cards</button>
+                    <div class="col-4 mx-2">@Team.RoundScores[i].CalculateTotal()</div>
+                    <p class="col-4" style="font-weight:bold; font-style:oblique">@this.OpeningPoints[i]</p>
+                </div>
+                <div class="row mb-2">
+                    <button class="col-4 btn-sm btn-success" @onclick="() => DrawBonusClick(roundNumber)">Draw</button>
+                    <button class="col-4 btn-sm btn-info" @onclick="() => OpenScoreBooksModal(roundNumber)">Books</button>
+                    <button class="col-4 btn-sm btn-info" @onclick="() => OpenScoreCardsModal(roundNumber)">Cards</button>
                 </div>
             }
-            <div class="row mb-2">
-                <button class="col-2 btn-sm btn-success mx-1" @onclick="() => DrawBonusClick(Team.RoundScores.Count)">Draw Bonus</button>
-                <div class="col-2">@(Team.RoundScores.Count + 1):</div>
-                <div class="col-2 mx-2">0</div>
-                <button class="col-2 btn-sm btn-info mx-2" @onclick="() => OpenScoreBooksModal(Team.RoundScores.Count)">Books</button>
-                <button class="col-2 btn-sm btn-info" @onclick="() => OpenScoreCardsModal(Team.RoundScores.Count)">Cards</button>
-            </div>
+            @if (Team.RoundScores.Count < 4)
+            {
+                <div class="row">
+                    <div class="col-2">@(Team.RoundScores.Count + 1):</div>
+                    <div class="col-4 mx-2">0</div>
+                    <p class="col-4" style="font-weight:bold; font-style:oblique">@this.OpeningPoints[Team.RoundScores.Count]</p>
+                    </div>
+                <div class="row mb-2">
+                    <button class="col-4 btn-sm btn-success" @onclick="() => DrawBonusClick(Team.RoundScores.Count)">Draw</button>
+                    <button class="col-4 btn-sm btn-info" @onclick="() => OpenScoreBooksModal(Team.RoundScores.Count)">Books</button>
+                    <button class="col-4 btn-sm btn-info" @onclick="() => OpenScoreCardsModal(Team.RoundScores.Count)">Cards</button>
+                </div>
+            }
         </div>
     </div>
 </div>
@@ -34,6 +43,11 @@
 
     [Parameter]
     public Team Team { get; set; }
+
+    private List<int> OpeningPoints = new List<int>()
+    {
+        60, 90, 120, 150
+    };
 
     private async Task OpenScoreBooksModal(int round)
     {
@@ -47,6 +61,14 @@
         Console.WriteLine($"Opening books score modal for {Team.Name}/{Team.StorageId} for round {round}");
         var p = new ModalParameters();
         p.Add("TeamName", Team.Name);
+        if(round < this.Team.RoundScores.Count)
+        {
+            p.Add("RoundScore", this.Team.RoundScores[round]);
+        }
+        else
+        {
+            p.Add("RoundScore", new RoundScore());
+        }
         var scoreModal = Modal.Show<Score>("Score", p, options);
 
         var result = await scoreModal.Result;
@@ -75,6 +97,16 @@
         Console.WriteLine($"Opening card score modal for {this.Team.Name}/{this.Team.StorageId} for round {round}");
         var p = new ModalParameters();
         p.Add("teamName", this.Team.Name);
+        if (round < this.Team.RoundScores.Count)
+        {
+            p.Add("RoundScore", this.Team.RoundScores[round]);
+            Console.WriteLine($"Getting already entered card score for round {round}.");
+            Console.WriteLine($"CardsTotalFor: {this.Team.RoundScores[round].CardsTotalFor}");
+        }
+        else
+        {
+            p.Add("RoundScore", new RoundScore());
+        }
         var scoreModal = Modal.Show<ScoreCards>("Card Score", p, options);
 
         var result = await scoreModal.Result;
@@ -92,6 +124,6 @@
 
     private void DrawBonusClick(int round)
     {
-        this.Team.AddCardDrawBonus(round, 1);
+        this.Team.AddCardDrawBonus(round);
     }
 }

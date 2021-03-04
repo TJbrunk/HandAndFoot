@@ -34,8 +34,7 @@ namespace HandAndFoot.Classes
 
         public int AddRoundBookScore(int round, RoundScore score)
         {
-            //round = round > 0 ? round - 1 : 0;
-            if(round == this.RoundScores.Count)
+            if(round == this.RoundScores.Count && this.RoundScores.Count < 4)
             {
                 this.RoundScores.Add(new RoundScore());
             }
@@ -51,7 +50,7 @@ namespace HandAndFoot.Classes
 
         public int AddRoundCardScore(int round, RoundScore score)
         {
-            if(round == this.RoundScores.Count)
+            if(round == this.RoundScores.Count && this.RoundScores.Count < 4)
             {
                 Console.WriteLine("Adding new empty round to score list");
                 this.RoundScores.Add(new RoundScore());
@@ -64,17 +63,14 @@ namespace HandAndFoot.Classes
             return s;
         }
 
-        public int AddCardDrawBonus(int round, int count)
+        public int AddCardDrawBonus(int round)
         {
-            //round = round > 0 ? round - 1 : 0;
-
-            if(round == this.RoundScores.Count)
+            if(round == this.RoundScores.Count && this.RoundScores.Count < 4)
             {
                 this.RoundScores.Add(new RoundScore());
             }
 
-            Console.WriteLine($"Adding {count} card draw bonus for round {round}");
-            this.RoundScores[round].CardDrawBonus = count;
+            this.RoundScores[round].CardDrawBonus += 1;
             return this.RoundScores[round].CalculateTotal();
         }
 

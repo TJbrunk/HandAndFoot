@@ -43,7 +43,8 @@
     [Parameter]
     public string TeamName{ get; set; }
 
-    public RoundScore RoundScore { get; set; } = new RoundScore();
+    [Parameter]
+    public RoundScore RoundScore { get; set; }
 
     private bool hideCardsAgainst { get; set; } = true;
     private void ToggleDisplay() => this.hideCardsAgainst = !this.hideCardsAgainst;
